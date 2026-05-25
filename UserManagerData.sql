@@ -1,10 +1,10 @@
 create database demo;
 use demo; 
 create table users ( 
-      id int(3) auto_increment not null primary key, 
-      name varchar(120) not null, 
-      email varchar(220) not null, 
-      country varchar(120)
+	id int(3) auto_increment not null primary key, 
+	name varchar(120) not null, 
+	email varchar(220) not null, 
+	country varchar(120)
 );
 
 insert into users(name, email, country) values('Minh','minh@codegym.vn','Viet Nam');
@@ -12,7 +12,7 @@ insert into users(name, email, country) values('Kante','kante@che.uk','Kenia');
 
 TRUNCATE TABLE users;
 
-INSERT INTO users (name, email, country) VALUES
+insert into users (name, email, country) values
 ('Bui Hoang Thanh', 'thanh.bui@example.com', 'Viet Nam'),
 ('Phan Van Luan', 'luan.phan@example.com', 'Viet Nam'),
 ('Nguyen An', 'an.nguyen@example.com', 'Viet Nam'),
@@ -39,3 +39,21 @@ begin
  insert into users(name, email, country) values(user_name, user_email, user_country);
  end$$
 DELIMITER ;
+
+create table Permision(
+	id int(11) primary key,
+	name varchar(50)
+);
+
+create table User_Permision(
+	permision_id int(11),
+	user_id int(11)
+);
+
+insert into Permision(id, name) values(1, 'add');
+
+insert into Permision(id, name) values(2, 'edit');
+
+insert into Permision(id, name) values(3, 'delete');
+
+insert into Permision(id, name) values(4, 'view');
