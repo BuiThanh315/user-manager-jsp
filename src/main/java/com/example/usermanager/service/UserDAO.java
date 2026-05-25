@@ -8,7 +8,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-public class UserDAO implements IUserDAO{
+public class UserDAO implements IUserDAO {
     private static final String SEARCH_USERS_BY_COUNTRY = "SELECT * FROM users WHERE country LIKE ?;";
     private static final String SORT_USERS_BY_NAME_ASC = "SELECT * FROM users ORDER BY SUBSTRING_INDEX(name, ' ', -1) ASC, name ASC;";
     private static final String SORT_USERS_BY_NAME_DESC = "SELECT * FROM users ORDER BY SUBSTRING_INDEX(name, ' ', -1) DESC, name ASC;";
@@ -325,6 +325,42 @@ public class UserDAO implements IUserDAO{
             psUpdate.setString(2, "Quynh");
             psUpdate.execute();
         } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public void insertUpdateUseTransaction() {
+        try (Connection conn = getConnection();
+             Statement statement = conn.createStatement();
+             PreparedStatement psInsert = conn.prepareStatement(SQL_INSERT);
+             PreparedStatement psUpdate = conn.prepareStatement(SQL_UPDATE)) {
+            statement.execute(SQL_TABLE_DROP);
+            statement.execute(SQL_TABLE_CREATE);
+            // start transaction block
+            conn.setAutoCommit(false); // default true
+            // Run list of insert commands
+            psInsert.setString(1, "Quynh");
+            psInsert.setBigDecimal(2, new BigDecimal(10));
+            psInsert.setTimestamp(3, Timestamp.valueOf(LocalDateTime.now()));
+            psInsert.execute();
+            psInsert.setString(1, "Ngan");
+            psInsert.setBigDecimal(2, new BigDecimal(20));
+            psInsert.setTimestamp(3, Timestamp.valueOf(LocalDateTime.now()));
+            psInsert.execute();
+            // Run list of update commands
+            // below line caused error, test transaction
+            // org.postgresql.util.PSQLException: No value specified for parameter 1.
+            psUpdate.setBigDecimal(2, new BigDecimal(999.99));
+            //psUpdate.setBigDecimal(1, new BigDecimal(999.99));
+            psUpdate.setString(2, "Quynh");
+            psUpdate.execute();
+            // end transaction block, commit changes
+            conn.commit();
+            // good practice to set it back to default true
+            conn.setAutoCommit(true);
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
             e.printStackTrace();
         }
     }
