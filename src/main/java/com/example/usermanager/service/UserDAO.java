@@ -6,8 +6,12 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public class UserDAO {
-    private String jdbcURL = "jdbc:mysql://localhost:3306/demo?useSSL=false";
+public class UserDAO implements IUserDAO{
+    private static final String SEARCH_USERS_BY_COUNTRY = "SELECT * FROM users WHERE country LIKE ?;";
+    private static final String SORT_USERS_BY_NAME_ASC = "SELECT * FROM users ORDER BY SUBSTRING_INDEX(name, ' ', -1) ASC, name ASC;";
+    private static final String SORT_USERS_BY_NAME_DESC = "SELECT * FROM users ORDER BY SUBSTRING_INDEX(name, ' ', -1) DESC, name ASC;";
+
+    private String jdbcURL = "jdbc:mysql://localhost:3306/demo?useSSL=false&useUnicode=true&characterEncoding=UTF-8";
     private String jdbcUsername = "root";
     private String jdbcPassword = "123456";
 
@@ -124,5 +128,51 @@ public class UserDAO {
                 }
             }
         }
+    }
+
+    @Override
+    public List<User> searchByCountry(String country) {
+        List<User> users = new ArrayList<>();
+        try (Connection connection = getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement(SEARCH_USERS_BY_COUNTRY)) {
+
+            // Tìm kiếm dạng chứa từ khóa (LIKE %keyword%)
+            preparedStatement.setString(1, "%" + country + "%");
+            ResultSet rs = preparedStatement.executeQuery();
+
+            while (rs.next()) {
+                int id = rs.getInt("id");
+                String name = rs.getString("name");
+                String email = rs.getString("email");
+                String userCountry = rs.getString("country");
+                users.add(new User(id, name, email, userCountry));
+            }
+        } catch (SQLException e) {
+            printSQLException(e);
+        }
+        return users;
+    }
+
+    @Override
+    public List<User> sortByName(String order) {
+        List<User> users = new ArrayList<>();
+        // Lựa chọn câu lệnh SQL dựa trên tham số truyền vào (ASC hoặc DESC)
+        String sql = "desc".equalsIgnoreCase(order) ? SORT_USERS_BY_NAME_DESC : SORT_USERS_BY_NAME_ASC;
+
+        try (Connection connection = getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+            ResultSet rs = preparedStatement.executeQuery();
+
+            while (rs.next()) {
+                int id = rs.getInt("id");
+                String name = rs.getString("name");
+                String email = rs.getString("email");
+                String country = rs.getString("country");
+                users.add(new User(id, name, email, country));
+            }
+        } catch (SQLException e) {
+            printSQLException(e);
+        }
+        return users;
     }
 }

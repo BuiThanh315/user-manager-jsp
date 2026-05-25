@@ -1,6 +1,7 @@
 package com.example.usermanager.controller;
 
 import com.example.usermanager.model.User;
+import com.example.usermanager.service.IUserDAO;
 import com.example.usermanager.service.UserDAO;
 
 import javax.servlet.RequestDispatcher;
@@ -16,7 +17,7 @@ import java.util.List;
 @WebServlet(name = "UserServlet", urlPatterns = "/users")
 public class UserServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
-    private UserDAO userDAO;
+    private IUserDAO userDAO;
 
     public void init() {
         userDAO = new UserDAO();
@@ -59,6 +60,12 @@ public class UserServlet extends HttpServlet {
                     break;
                 case "delete":
                     deleteUser(request, response);
+                    break;
+                case "search": // Chức năng mới
+                    searchUserByCountry(request, response);
+                    break;
+                case "sort": // Chức năng mới
+                    sortUserByName(request, response);
                     break;
                 default:
                     listUser(request, response);
@@ -124,6 +131,28 @@ public class UserServlet extends HttpServlet {
 
         List<User> listUser = userDAO.selectAllUsers();
         request.setAttribute("listUser", listUser);
+        RequestDispatcher dispatcher = request.getRequestDispatcher("/user/list.jsp");
+        dispatcher.forward(request, response);
+    }
+
+    private void searchUserByCountry(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        String keyword = request.getParameter("keyword");
+        List<User> listUser = userDAO.searchByCountry(keyword);
+
+        request.setAttribute("listUser", listUser);
+        request.setAttribute("keyword", keyword); // Gửi lại từ khóa để hiển thị trên ô nhập liệu
+        RequestDispatcher dispatcher = request.getRequestDispatcher("/user/list.jsp");
+        dispatcher.forward(request, response);
+    }
+
+    private void sortUserByName(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        String order = request.getParameter("order");
+        List<User> listUser = userDAO.sortByName(order);
+
+        request.setAttribute("listUser", listUser);
+        request.setAttribute("currentOrder", order); // Gửi trạng thái sort hiện tại để đổi chiều icon/link
         RequestDispatcher dispatcher = request.getRequestDispatcher("/user/list.jsp");
         dispatcher.forward(request, response);
     }
