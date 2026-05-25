@@ -29,4 +29,10 @@ public interface IUserDAO {
     public void insertUpdateWithoutTransaction();
 
     public void insertUpdateUseTransaction();
+
+    List<User> selectAllUsersStore();
+
+    boolean updateUserStore(User user) throws SQLException;
+
+    boolean deleteUserStore(int id) throws SQLException;
 }
