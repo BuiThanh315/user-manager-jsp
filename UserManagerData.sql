@@ -57,3 +57,10 @@ insert into Permision(id, name) values(2, 'edit');
 insert into Permision(id, name) values(3, 'delete');
 
 insert into Permision(id, name) values(4, 'view');
+
+create table Employee ( 
+	id int(3) auto_increment not null primary key, 
+	name varchar(120) not null , 
+	salary int(220) not null, 
+	created_Date datetime
+);
