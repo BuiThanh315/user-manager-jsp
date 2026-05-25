@@ -64,3 +64,41 @@ create table Employee (
 	salary int(220) not null, 
 	created_Date datetime
 );
+
+drop procedure if exists get_all_users;
+DELIMITER $$
+create procedure get_all_users()
+begin
+    select id, name, email, country
+    from users;
+end$$
+DELIMITER ;
+
+drop procedure if exists update_user;
+DELIMITER $$
+create procedure update_user(
+    in user_id int,
+    in user_name varchar(120),
+    in user_email varchar(220),
+    in user_country varchar(120)
+)
+
+begin
+    update users
+    set name = user_name,
+        email = user_email,
+        country = user_country
+    where id = user_id;
+end$$
+DELIMITER ;
+
+drop procedure if exists delete_user;
+DELIMITER $$
+create procedure delete_user(in user_id int)
+begin
+    delete from users
+    where id = user_id;
+end$$
+DELIMITER ;
+
+call get_all_users();
